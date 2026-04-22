@@ -1,5 +1,6 @@
 package com.landminesoft.lms.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -12,27 +13,29 @@ public class StudentRegisterDTO {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
-    @Size(max = 100)
     private String email;
 
     @NotBlank(message = "Phone is required")
-    @Pattern(regexp = "^[0-9]{10,15}$", message = "Invalid phone number")
+    @Pattern(regexp = "^[0-9]{10,15}$")
     private String phone;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
-    @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=!]).*$",
-            message = "Password must contain uppercase, number, and special character"
-    )
+    @Size(min = 8)
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=!]).*$")
     private String password;
 
     @NotBlank(message = "Branch is required")
-    @Pattern(regexp = "CSE|ECE|ME|CE|EE", message = "Invalid branch")
     private String branch;
 
-    @NotNull(message = "Enrollment year is required")
-    @Min(value = 2000)
-    @Max(value = 2100)
+
+    @NotNull
     private Integer enrollmentYear;
+
+    @NotBlank(message = "Roll number is required")
+    private String rollNumber;
+
+    @NotNull(message = "Semester is required")
+    @Min(1)
+    @Max(8)
+    private Integer semester;
 }
