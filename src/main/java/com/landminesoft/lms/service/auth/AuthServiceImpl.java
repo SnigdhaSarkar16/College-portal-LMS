@@ -5,6 +5,8 @@ import com.landminesoft.lms.dto.response.RegistrationResponseDTO;
 import com.landminesoft.lms.dto.response.LoginResponseDTO;
 import com.landminesoft.lms.entity.*;
 import com.landminesoft.lms.repository.*;
+import com.landminesoft.lms.security.JwtUtil;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +17,19 @@ public class AuthServiceImpl implements AuthService {
     private final FacultyRepository facultyRepository;
     private final AdminRepository adminRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil; // ✅ added
 
     public AuthServiceImpl(StudentRepository studentRepository,
                            FacultyRepository facultyRepository,
                            AdminRepository adminRepository,
-                           BCryptPasswordEncoder passwordEncoder) {
+                           BCryptPasswordEncoder passwordEncoder,
+                           JwtUtil jwtUtil) {   // ✅ added
+
         this.studentRepository = studentRepository;
         this.facultyRepository = facultyRepository;
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil; // ✅ added
     }
 
     // ================= STUDENT REGISTER =================
@@ -133,8 +139,14 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
+        String token = jwtUtil.generateToken(
+                student.getId(),
+                student.getEmail(),
+                "STUDENT"
+        );
+
         return new LoginResponseDTO(
-                "dummy-token",
+                token,
                 "Bearer",
                 student.getId(),
                 student.getEmail(),
@@ -155,8 +167,14 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
+        String token = jwtUtil.generateToken(
+                faculty.getId(),
+                faculty.getEmail(),
+                "FACULTY"
+        );
+
         return new LoginResponseDTO(
-                "dummy-token",
+                token,
                 "Bearer",
                 faculty.getId(),
                 faculty.getEmail(),
@@ -177,8 +195,14 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
+        String token = jwtUtil.generateToken(
+                admin.getId(),
+                admin.getEmail(),
+                "ADMIN"
+        );
+
         return new LoginResponseDTO(
-                "dummy-token",
+                token,
                 "Bearer",
                 admin.getId(),
                 admin.getEmail(),
