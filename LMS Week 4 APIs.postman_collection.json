@@ -1,0 +1,192 @@
+{
+  "info": {
+    "_postman_id": "8f266048-7df9-46da-82d6-55f689836981",
+    "name": "LMS Week 4 APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54230308",
+    "_collection_link": "https://go.postman.co/collection/54230308-8f266048-7df9-46da-82d6-55f689836981?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "studentprofile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJyYWh1bDEwQGNvbGxlZ2UuZWR1IiwidXNlcklkIjozLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc3NzEwODQ0OSwiZXhwIjoxNzc3MTk0ODQ5fQ.Xb5Pbtw8oXUH-Hx71iY3thg0BiWIClPLUHwoQ60tVi2neAGGO2F6MVAh4_M-LBxa",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"phone\": \"9876543210\",\r\n  \"address\": \"Pune, Maharashtra\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/student/profile",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "student",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "changepassword",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJyYWh1bDEwQGNvbGxlZ2UuZWR1IiwidXNlcklkIjozLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc3NzExMDY2MiwiZXhwIjoxNzc3MTk3MDYyfQ.UO4CB7_3NWSDFs_LY2IfIINHFAH3ioOjQSoeFwU0RKnPTCchc7ZDTwDeJ0kvSITy",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"oldPassword\": \"NewPass@123\",\r\n  \"newPassword\": \"SecurePass@999\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/change-password",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "change-password"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "forgotpassword",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"rahul10@college.edu\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/forgot-password",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "forgot-password"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "resetpassword",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"token\": \"3a846b0c-4c7c-4ce2-9cfd-0d94c08e082f\",\r\n  \"newPassword\": \"NewPass@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/reset-password",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "reset-password"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "studentprofile",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Brearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJyYWh1bDExQGNvbGxlZ2UuZWR1IiwidXNlcklkIjo0LCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc3NzExMjY1MSwiZXhwIjoxNzc3MTk5MDUxfQ.DKRNInj43ciYBqVEsC5ooGrMQnH6mKaTSv-LcAe5N_xA3vsNTPgSQfM1jjsojPns",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/student/profile",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "student",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

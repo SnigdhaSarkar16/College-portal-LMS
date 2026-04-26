@@ -45,7 +45,16 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/student/login",
+                                "/api/auth/faculty/login",
+                                "/api/auth/admin/login",
+                                "/api/auth/student/register",
+                                "/api/auth/faculty/register",
+                                "/api/auth/admin/register",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password"
+                        ).permitAll()
 
                         // RBAC
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
