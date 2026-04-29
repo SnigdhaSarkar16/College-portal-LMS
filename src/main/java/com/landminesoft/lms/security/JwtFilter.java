@@ -39,12 +39,22 @@ public class JwtFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         // 🔴 If header is missing → let Spring handle (will become 401)
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
+// normalize header
+        authHeader = authHeader.trim();
+
+// accept any "Bearer" with spaces
+        if (!authHeader.toLowerCase().startsWith("bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = authHeader.substring(7).trim();
+
 
         // 🔴 Invalid token → return 401
         if (!jwtUtil.validateToken(token)) {

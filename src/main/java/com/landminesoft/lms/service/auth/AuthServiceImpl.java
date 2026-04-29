@@ -6,36 +6,34 @@ import com.landminesoft.lms.dto.response.LoginResponseDTO;
 import com.landminesoft.lms.entity.*;
 import com.landminesoft.lms.repository.*;
 import com.landminesoft.lms.security.JwtUtil;
-import com.landminesoft.lms.entity.ResetToken;
-import com.landminesoft.lms.entity.Student;
+import com.landminesoft.lms.exception.*;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-
 @Service
 public class AuthServiceImpl implements AuthService {
 
     private final StudentRepository studentRepository;
     private final FacultyRepository facultyRepository;
     private final AdminRepository adminRepository;
-    private final ResetTokenRepository resetTokenRepository; // ✅ NEW
+    private final ResetTokenRepository resetTokenRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     public AuthServiceImpl(StudentRepository studentRepository,
                            FacultyRepository facultyRepository,
                            AdminRepository adminRepository,
-                           ResetTokenRepository resetTokenRepository, // ✅ NEW
+                           ResetTokenRepository resetTokenRepository,
                            BCryptPasswordEncoder passwordEncoder,
                            JwtUtil jwtUtil) {
 
         this.studentRepository = studentRepository;
         this.facultyRepository = facultyRepository;
         this.adminRepository = adminRepository;
-        this.resetTokenRepository = resetTokenRepository; // ✅ NEW
+        this.resetTokenRepository = resetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -45,11 +43,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RegistrationResponseDTO registerStudent(StudentRegisterDTO dto) {
         if (studentRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new UserAlreadyExistsException("Email already exists");
         }
 
         if (studentRepository.existsByRollNumber(dto.getRollNumber())) {
-            throw new RuntimeException("Roll number already exists");
+            throw new UserAlreadyExistsException("Roll number already exists");
         }
 
         Student student = new Student();
@@ -76,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RegistrationResponseDTO registerFaculty(FacultyRegisterDTO dto) {
         if (facultyRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new UserAlreadyExistsException("Email already exists");
         }
 
         FacultyPersonal faculty = new FacultyPersonal();
@@ -101,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public RegistrationResponseDTO registerAdmin(AdminRegisterDTO dto) {
         if (adminRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new UserAlreadyExistsException("Email already exists");
         }
 
         Admin admin = new Admin();
@@ -127,10 +125,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponseDTO loginStudent(LoginDTO dto) {
         Student student = studentRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         if (!passwordEncoder.matches(dto.getPassword(), student.getPasswordHash())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
         String token = jwtUtil.generateToken(
@@ -151,10 +149,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponseDTO loginFaculty(LoginDTO dto) {
         FacultyPersonal faculty = facultyRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         if (!passwordEncoder.matches(dto.getPassword(), faculty.getPasswordHash())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
         String token = jwtUtil.generateToken(
@@ -175,10 +173,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponseDTO loginAdmin(LoginDTO dto) {
         Admin admin = adminRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         if (!passwordEncoder.matches(dto.getPassword(), admin.getPasswordHash())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
         String token = jwtUtil.generateToken(
@@ -209,10 +207,9 @@ public class AuthServiceImpl implements AuthService {
                         adminRepository.existsByEmail(email);
 
         if (!exists) {
-            throw new RuntimeException("Email not registered");
+            throw new UnauthorizedException("Email not registered");
         }
 
-        // delete old token
         resetTokenRepository.deleteByEmail(email);
 
         String token = java.util.UUID.randomUUID().toString();
@@ -226,82 +223,77 @@ public class AuthServiceImpl implements AuthService {
 
         resetTokenRepository.save(resetToken);
 
-        // temporary (until email integration)
         System.out.println("RESET TOKEN: " + token);
     }
+
     @Override
     public void resetPassword(ResetPasswordDTO dto) {
 
-        // 1. Find token
         ResetToken resetToken = resetTokenRepository.findByToken(dto.getToken())
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid token"));
 
-        // 2. Check expiry
         if (resetToken.getExpiryDate().isBefore(java.time.LocalDateTime.now())) {
-            throw new RuntimeException("Token expired");
+            throw new UnauthorizedException("Token expired");
         }
 
         String email = resetToken.getEmail();
 
-        // 3. Update password (check all user types)
         if (studentRepository.existsByEmail(email)) {
-
             Student student = studentRepository.findByEmail(email).get();
             student.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
             studentRepository.save(student);
 
         } else if (facultyRepository.existsByEmail(email)) {
-
             FacultyPersonal faculty = facultyRepository.findByEmail(email).get();
             faculty.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
             facultyRepository.save(faculty);
 
         } else if (adminRepository.existsByEmail(email)) {
-
             Admin admin = adminRepository.findByEmail(email).get();
             admin.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
             adminRepository.save(admin);
         }
 
-        // 4. Delete token after use
         resetTokenRepository.deleteByEmail(email);
     }
+
+    // ================= PROFILE =================
+
     @Override
     public Student getStudentProfile(String email) {
-
         return studentRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new UnauthorizedException("Student not found"));
     }
+
     @Override
     public Student updateStudentProfile(String email, UpdateStudentDTO dto) {
 
         Student student = studentRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new UnauthorizedException("Student not found"));
 
         if (dto.getPhone() != null) {
             student.setPhone(dto.getPhone());
         }
 
-        // only if your entity has address field
         if (dto.getAddress() != null) {
             student.setAddress(dto.getAddress());
         }
 
         return studentRepository.save(student);
     }
+
+    // ================= CHANGE PASSWORD =================
+
     @Override
     public void changePassword(String email, ChangePasswordDTO dto) {
 
-        // find user (student for now)
         Student student = studentRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        // check old password
         if (!passwordEncoder.matches(dto.getOldPassword(), student.getPasswordHash())) {
-            throw new RuntimeException("Old password is incorrect");
+            throw new InvalidCredentialsException("Old password is incorrect");
         }
 
-        // set new password
         student.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
 
         studentRepository.save(student);
