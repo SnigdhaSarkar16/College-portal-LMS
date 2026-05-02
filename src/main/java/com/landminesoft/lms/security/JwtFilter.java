@@ -22,32 +22,35 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-        return path.startsWith("/api/auth/login") ||
-                path.startsWith("/api/auth/register") ||
-                path.startsWith("/api/auth/forgot-password") ||
-                path.startsWith("/api/auth/reset-password");
-    }
-
-    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        // ✅ APPLY JWT ONLY TO /api/*
+        if (!path.startsWith("/api")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // ✅ Skip auth endpoints
+        if (path.startsWith("/api/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
-        // 🔴 If header is missing → let Spring handle (will become 401)
+        // No token → continue
         if (authHeader == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-// normalize header
         authHeader = authHeader.trim();
 
-// accept any "Bearer" with spaces
         if (!authHeader.toLowerCase().startsWith("bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -55,8 +58,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7).trim();
 
-
-        // 🔴 Invalid token → return 401
+        // Invalid token
         if (!jwtUtil.validateToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
@@ -64,7 +66,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // ✅ Valid token → extract and authenticate
+        // Valid token → set authentication
         String email = jwtUtil.extractEmail(token);
         String role = jwtUtil.extractRole(token);
 

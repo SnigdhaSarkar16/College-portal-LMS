@@ -1,11 +1,9 @@
 package com.landminesoft.lms.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Data
 @Entity
 @Table(name = "announcement")
 public class Announcement {
@@ -14,27 +12,45 @@ public class Announcement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false, length = 2000)
-    private String message;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Target target;
+    // 🔗 Admin
+    @ManyToOne
+    @JoinColumn(name = "created_by", nullable = false)
+    private Admin createdBy;
 
-    @Column(name = "created_at", nullable = false)
+    private String targetAudience; // STUDENT / FACULTY / ALL
+
     private LocalDateTime createdAt;
 
-    public enum Target {
-        STUDENT,
-        FACULTY,
-        ALL
-    }
+    private LocalDate expiresAt;
 
     @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
     }
+
+    // ===== GETTERS & SETTERS =====
+
+    public Long getId() { return id; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public Admin getCreatedBy() { return createdBy; }
+    public void setCreatedBy(Admin createdBy) { this.createdBy = createdBy; }
+
+    public String getTargetAudience() { return targetAudience; }
+    public void setTargetAudience(String targetAudience) { this.targetAudience = targetAudience; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public LocalDate getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(LocalDate expiresAt) { this.expiresAt = expiresAt; }
 }

@@ -23,16 +23,16 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
-                // Stateless JWT
+                // ✅ Stateless
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Disable default auth
+                // ✅ Disable default Spring login (VERY IMPORTANT)
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 
-                // 🔴 Proper 401 handling (missing/invalid auth)
+                // ✅ Custom 401 response
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -44,19 +44,24 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
+
+                        // ✅ ALLOW EVERYTHING THAT IS NOT /api/**
+                        // THIS FIXES SWAGGER COMPLETELY
                         .requestMatchers(
-                                "/api/auth/student/login",
-                                "/api/auth/faculty/login",
-                                "/api/auth/admin/login",
-                                "/api/auth/student/register",
-                                "/api/auth/faculty/register",
-                                "/api/auth/admin/register",
-                                "/api/auth/forgot-password",
-                                "/api/auth/reset-password"
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
                         ).permitAll()
 
-                        // RBAC
+                        // ✅ PUBLIC APIs
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/subjects",
+                                "/api/courses",
+                                "/api/announcements"
+                        ).permitAll()
+
+                        // 🔒 RBAC
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/faculty/**").hasAnyRole("FACULTY", "ADMIN")
                         .requestMatchers("/api/student/**").hasAnyRole("STUDENT", "ADMIN")
@@ -64,7 +69,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // JWT filter
+                // ✅ JWT filter
                 .addFilterBefore(new JwtFilter(jwtUtil),
                         UsernamePasswordAuthenticationFilter.class);
 

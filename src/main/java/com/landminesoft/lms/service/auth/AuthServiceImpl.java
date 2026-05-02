@@ -8,6 +8,7 @@ import com.landminesoft.lms.repository.*;
 import com.landminesoft.lms.security.JwtUtil;
 import com.landminesoft.lms.exception.*;
 
+import com.landminesoft.lms.service.auth.AuthService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
