@@ -1,6 +1,8 @@
 package com.landminesoft.lms.repository;
 
 import com.landminesoft.lms.entity.Marks;
+import com.landminesoft.lms.entity.Student;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,4 +13,7 @@ public interface MarksRepository extends JpaRepository<Marks, Long> {
     List<Marks> findByStudentId(Long studentId);
 
     Optional<Marks> findByStudentIdAndCourseId(Long studentId, Long courseId);
+
+    // ✅ Needed for frontend dashboard
+    List<Marks> findByStudent(Student student);
 }
