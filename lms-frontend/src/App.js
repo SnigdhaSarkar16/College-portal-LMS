@@ -10,10 +10,6 @@ function App() {
     localStorage.getItem("token")
   );
 
-  const [enrollments, setEnrollments] = useState([]);
-  const [attendance, setAttendance] = useState([]);
-  const [marks, setMarks] = useState([]);
-
   // LOGIN
   const login = async () => {
 
@@ -55,41 +51,6 @@ function App() {
       console.log(error);
 
       alert("Login failed");
-    }
-  };
-
-
-  // COMMON FETCH FUNCTION
-  const fetchData = async (url, setter) => {
-
-    try {
-
-      const response = await fetch(
-        "https://lms-backend-x287.onrender.com" + url,
-        {
-          method: "GET",
-          headers: {
-            Authorization: "Bearer " + token
-          }
-        }
-      );
-
-      const data = await response.json();
-
-      console.log(data);
-
-      if (Array.isArray(data)) {
-        setter(data);
-      } else {
-        setter([]);
-        console.log("Response is not array:", data);
-      }
-
-    } catch (error) {
-
-      console.log(error);
-
-      setter([]);
     }
   };
 
@@ -137,13 +98,12 @@ function App() {
   }
 
   // DASHBOARD
- return <FacultyPanel />;(
-
-    <div style={styles.dashboard}>
+  return (
+    <div>
 
       <div style={styles.navbar}>
 
-        <h2>🎓 LMS Dashboard</h2>
+        <h2 style={{ color: "white" }}>LMS Portal</h2>
 
         <button style={styles.logoutButton} onClick={logout}>
           Logout
@@ -151,131 +111,7 @@ function App() {
 
       </div>
 
-      <div style={styles.buttonContainer}>
-
-        <button
-          style={styles.button}
-          onClick={() =>
-            fetchData(
-              "/api/student/enrollments",
-              setEnrollments
-            )
-          }
-        >
-          📚 Enrollments
-        </button>
-
-        <button
-          style={styles.button}
-          onClick={() =>
-            fetchData(
-              "/api/student/attendance",
-              setAttendance
-            )
-          }
-        >
-          📅 Attendance
-        </button>
-
-        <button
-          style={styles.button}
-          onClick={() =>
-            fetchData(
-              "/api/student/marks",
-              setMarks
-            )
-          }
-        >
-          📊 Marks
-        </button>
-
-      </div>
-
-      {/* ENROLLMENTS */}
-      <div style={styles.card}>
-
-        <h3>📚 Enrollments</h3>
-
-        {
-          enrollments.length === 0 ? (
-
-            <p>No enrollments found</p>
-
-          ) : (
-
-            Array.isArray(enrollments) &&
-            enrollments.map((e, index) => (
-
-              <div key={index} style={styles.item}>
-
-                Course ID: {e.course?.id}
-
-              </div>
-
-            ))
-
-          )
-        }
-
-      </div>
-
-      {/* ATTENDANCE */}
-      <div style={styles.card}>
-
-        <h3>📅 Attendance</h3>
-
-        {
-          attendance.length === 0 ? (
-
-            <p>No attendance records</p>
-
-          ) : (
-
-            Array.isArray(attendance) &&
-            attendance.map((a, index) => (
-
-              <div key={index} style={styles.item}>
-
-                Status: {a.status}
-
-              </div>
-
-            ))
-
-          )
-        }
-
-      </div>
-
-      {/* MARKS */}
-      <div style={styles.card}>
-
-        <h3>📊 Marks</h3>
-
-        {
-          marks.length === 0 ? (
-
-            <p>No marks available</p>
-
-          ) : (
-
-            Array.isArray(marks) &&
-            marks.map((m, index) => (
-
-              <div key={index} style={styles.item}>
-
-                Total: {m.totalMarks}
-                {" | Grade: "}
-                {m.grade}
-
-              </div>
-
-            ))
-
-          )
-        }
-
-      </div>
+      <FacultyPanel />
 
     </div>
   );
@@ -302,24 +138,12 @@ const styles = {
     gap: "15px"
   },
 
-  dashboard: {
-    minHeight: "100vh",
-    background: "#f1f5f9",
-    padding: "30px",
-    fontFamily: "Arial"
-  },
-
   navbar: {
+    background: "#0f172a",
+    padding: "15px 30px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center"
-  },
-
-  buttonContainer: {
-    marginTop: "20px",
-    marginBottom: "20px",
-    display: "flex",
-    gap: "15px"
   },
 
   button: {
@@ -344,19 +168,6 @@ const styles = {
     padding: "12px",
     borderRadius: "8px",
     border: "1px solid #ccc"
-  },
-
-  card: {
-    background: "white",
-    padding: "20px",
-    marginBottom: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-  },
-
-  item: {
-    padding: "10px",
-    borderBottom: "1px solid #eee"
   }
 };
 
