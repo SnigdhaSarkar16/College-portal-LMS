@@ -20,7 +20,7 @@ function App() {
     try {
 
       const response = await fetch(
-        "http://localhost:8080/api/auth/student/login",
+        "https://lms-backend-x287.onrender.com/api/auth/student/login",
         {
           method: "POST",
           headers: {
@@ -34,18 +34,30 @@ function App() {
       );
 
       const data = await response.json();
-      console.log(data);
-      localStorage.setItem("token", data.token);
 
-      setToken(data.token);
+      console.log(data);
+
+      if (response.ok) {
+
+        localStorage.setItem("token", data.token);
+
+        setToken(data.token);
+
+        alert("Login successful");
+
+      } else {
+
+        alert(data.message || "Login failed");
+      }
 
     } catch (error) {
 
-      alert("Login failed");
-
       console.log(error);
+
+      alert("Login failed");
     }
   };
+
 
   // COMMON FETCH FUNCTION
   const fetchData = async (url, setter) => {
@@ -53,7 +65,7 @@ function App() {
     try {
 
       const response = await fetch(
-        "http://localhost:8080" + url,
+        "https://lms-backend-x287.onrender.com" + url,
         {
           method: "GET",
           headers: {
